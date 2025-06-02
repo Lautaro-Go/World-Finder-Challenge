@@ -17,7 +17,7 @@ var wordFinder = serviceProvider.GetRequiredService<IWordFinder>();
 var foundWords = wordFinder.Find(wordStream);
 
 
-Console.WriteLine("Words found, ordered from most to least frequent (by count of appearance).");
+Console.WriteLine("Words found, ordered from most to least frequent.");
 foreach (var word in foundWords)
 {
     Console.WriteLine(word);

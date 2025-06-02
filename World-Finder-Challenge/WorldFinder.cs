@@ -9,22 +9,22 @@ namespace World_Finder_Challenge
 {
     public class WorldFinder : IWordFinder
     {
-        private readonly char[,] matrix;
+        private readonly char[,] _matrix;
         private readonly int rows;
         private readonly int cols;
         private TrieNode root;
 
-        public WorldFinder(IEnumerable<string> matrixData)
+        public WorldFinder(IEnumerable<string> matrix)
         {
-            var data = matrixData.ToArray();
+            var data = matrix.ToArray();
             rows = data.Length;
             cols = data[0].Length;
-            matrix = new char[rows, cols];
+            _matrix = new char[rows, cols];
 
-            //it just populates the matrix with the input data
+            //it just populates the _matrix with the input data
             for (int i = 0; i < rows; i++)
                 for (int j = 0; j < cols; j++)
-                    matrix[i, j] = data[i][j];
+                    _matrix[i, j] = data[i][j];
         }
 
         private void BuildTrie(IEnumerable<string> words) // O(n*m)
@@ -50,7 +50,7 @@ namespace World_Finder_Challenge
             var foundWords = new Dictionary<string, int>();
             var visited = new bool[rows, cols]; // To avoid duplicate searches on the same cell
 
-            //it iterates through the matrix and searches for words (wordStream)
+            //it iterates through the _matrix and searches for words (wordStream)
             for (int r = 0; r < rows; r++)
                 for (int c = 0; c < cols; c++)
                     Backtrack(r, c, root, foundWords, visited);
@@ -65,9 +65,9 @@ namespace World_Finder_Challenge
 
         private void Backtrack(int r, int c, TrieNode node, Dictionary<string, int> foundWords, bool[,] visited)
         {
-            if (r < 0 || r >= rows || c < 0 || c >= cols || visited[r, c]) return; // Pruning: out of matrix bounds or already explored cell
+            if (r < 0 || r >= rows || c < 0 || c >= cols || visited[r, c]) return; // Pruning: out of _matrix bounds or already explored cell
 
-            char ch = matrix[r, c];
+            char ch = _matrix[r, c];
             if (!node.Children.ContainsKey(ch)) return; // Pruning: if the character is not in the Trie, it cuts early
 
             node = node.Children[ch];
