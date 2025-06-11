@@ -38,3 +38,5 @@ To support testing and visualization:
     A separate class was created to print the matrix, optionally highlighting found words.
 
 Finally, the WordFinder class was implemented with dependency injection in mind. This allows for easy replacement or extension with future or improved implementations.
+
+TODO: add unit testing 
