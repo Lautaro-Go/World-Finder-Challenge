@@ -7,30 +7,28 @@ using System.Threading.Tasks;
 
 namespace World_Finder_Challenge
 {
-    public class WorldFinder : IWordFinder
+    public class WordFinder : IWordFinder
     {
         private readonly char[,] _matrix;
         private readonly int rows;
         private readonly int cols;
         private TrieNode root;
 
-        public WorldFinder(IEnumerable<string> matrix)
+        public WordFinder(IEnumerable<string> matrixData)
         {
-            var data = matrix.ToArray();
+            var data = matrixData.ToArray();
             rows = data.Length;
             cols = data[0].Length;
             _matrix = new char[rows, cols];
-
-            //it just populates the _matrix with the input data
             for (int i = 0; i < rows; i++)
                 for (int j = 0; j < cols; j++)
                     _matrix[i, j] = data[i][j];
         }
 
-        private void BuildTrie(IEnumerable<string> words) // O(n*m)
+        private void BuildTrie(IEnumerable<string> words)
         {
             root = new TrieNode();
-            foreach (var word in words) // O(r^2)
+            foreach (var word in words)
             {
                 var node = root;
                 foreach (var c in word)
@@ -44,45 +42,55 @@ namespace World_Finder_Challenge
             }
         }
 
-        public IEnumerable<string> Find(IEnumerable<string> wordStream) // O(r^2)
+        public Dictionary<string, int> Find(IEnumerable<string> wordStream)
         {
             BuildTrie(wordStream.Distinct());
             var foundWords = new Dictionary<string, int>();
-            var visited = new bool[rows, cols]; // To avoid duplicate searches on the same cell
 
-            //it iterates through the _matrix and searches for words (wordStream)
+            // Horizontal backtracking (left-to-right)
             for (int r = 0; r < rows; r++)
+            {
                 for (int c = 0; c < cols; c++)
-                    Backtrack(r, c, root, foundWords, visited);
+                {
+                    // Complexity: O(L) where L is the word length in the horizontal direction
+                    Backtrack(r, c, 0, 1, root, foundWords);
+                }
+            }
 
-            // Return only the 10 most frequent words, O (n log n)
-            return foundWords
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(10)
-                .Select(kvp => kvp.Key);
+            // Vertical backtracking (top-to-bottom)
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    // Complexity: O(L) where L is the word length in the vertical direction
+                    Backtrack(r, c, 1, 0, root, foundWords);
+                }
+            }
 
+            return foundWords.OrderByDescending(kvp => kvp.Value)
+                             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        private void Backtrack(int r, int c, TrieNode node, Dictionary<string, int> foundWords, bool[,] visited)
+        // Complexity per recursive chain: O(L) (worst case, where L is the length of the word in that direction)
+        private void Backtrack(int r, int c, int dr, int dc, TrieNode node, Dictionary<string, int> foundWords)
         {
-            if (r < 0 || r >= rows || c < 0 || c >= cols || visited[r, c]) return; // Pruning: out of _matrix bounds or already explored cell
+            if (r < 0 || r >= rows || c < 0 || c >= cols)
+                return;
 
             char ch = _matrix[r, c];
-            if (!node.Children.ContainsKey(ch)) return; // Pruning: if the character is not in the Trie, it cuts early
+            if (!node.Children.ContainsKey(ch))
+                return;
 
             node = node.Children[ch];
+
             if (node.IsWord)
             {
-                if (!foundWords.ContainsKey(node.Word)) foundWords[node.Word] = 0;
+                if (!foundWords.ContainsKey(node.Word))
+                    foundWords[node.Word] = 0;
                 foundWords[node.Word]++;
             }
 
-            visited[r, c] = true; // it marks cell as visited
-
-            Backtrack(r + 1, c, node, foundWords, visited); // Down (vertical)
-            Backtrack(r, c + 1, node, foundWords, visited); // Right (horizontal)
-
-            visited[r, c] = false; // Unmark cell (Backtracking)
+            Backtrack(r + dr, c + dc, dr, dc, node, foundWords);
         }
 
         private class TrieNode

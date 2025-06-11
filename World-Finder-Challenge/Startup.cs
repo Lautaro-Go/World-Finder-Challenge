@@ -9,8 +9,7 @@ namespace World_Finder_Challenge
         {
             var services = new ServiceCollection();
 
-            // Registrar WordFinderTree con una instancia de datos
-            services.AddSingleton<IWordFinder>(provider => new WorldFinder(matrixData));
+            services.AddSingleton<IWordFinder>(provider => new World_Finder_Challenge.WordFinder(matrixData));
 
             return services.BuildServiceProvider();
         }

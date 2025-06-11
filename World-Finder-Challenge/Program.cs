@@ -5,7 +5,7 @@ using World_Finder_Challenge;
 
 
 var (matrix, wordStream) = MatrixGenerator.GenerateMatrixWithWords(); // complexity out of scope
-//MatrixPrinter.PrintMatrixWithHighlight(matrix, wordStream); // out of scope, just to visualize the matrix used
+MatrixPrinter.PrintMatrixWithHighlight(matrix, wordStream); // out of scope, just to visualize the matrix used
 
 
 var startup = new Startup();

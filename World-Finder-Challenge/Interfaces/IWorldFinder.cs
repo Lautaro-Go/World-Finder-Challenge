@@ -8,6 +8,6 @@ namespace Challenge_Word_Finder.Interfaces
 {
     public interface IWordFinder
     {
-        IEnumerable<string> Find(IEnumerable<string> wordStream);
+        Dictionary<string, int> Find(IEnumerable<string> wordStream);
     }
 }

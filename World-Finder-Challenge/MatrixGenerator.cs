@@ -9,22 +9,30 @@ namespace World_Finder_Challenge
     {
         private static readonly Random random = new Random();
 
-        public static (List<string> matrix, List<string> wordStream) GenerateMatrixWithWords(int rows = 64, int columns = 64, int wordCount = 15)
+        public static (List<string> matrix, List<string> wordStream) GenerateMatrixWithWords(int rows = 64, int columns = 64, int wordCount = 15, bool useExistingFile = true)
         {
-            var matrix = GenerateRandomMatrix(rows, columns);
+            List<string> matrix;
+            var availableWords = new List<string>
+            {
+                "HELLO", "WORLD", "SEARCH", "STACK", "QUEUE", "MATRIX",
+                "ALGORITHM", "TREE", "GRAPH", "CODE", "DEBUG", "SYSTEM",
+                "VARIABLE", "FUNCTION", "LOOP", "CLASS", "OBJECT", "METHOD"
+            };
+
+            if (useExistingFile)
+            {
+                matrix = LoadExistingMatrix();
+                if (matrix != null) return (matrix, availableWords);
+                
+                Console.WriteLine("No se encontró un archivo válido, generando una nueva matriz.");
+            }
+
+            matrix = GenerateRandomMatrix(rows, columns);
             var matrixArray = matrix.Select(row => row.ToCharArray()).ToArray();
 
-            var availableWords = new List<string>
-        {
-            "HELLO", "WORLD", "SEARCH", "STACK", "QUEUE", "MATRIX",
-            "ALGORITHM", "TREE", "GRAPH", "CODE", "DEBUG", "SYSTEM",
-            "VARIABLE", "FUNCTION", "LOOP", "CLASS", "OBJECT", "METHOD"
-        };
+           
 
-            // it takes random words from the variable above
             var selectedWords = availableWords.OrderBy(_ => random.Next()).Take(wordCount).ToList();
-
-            // it adds words repeatdes, 10 will be twice
             var repeatedWords = selectedWords.Take(10);
             selectedWords.AddRange(repeatedWords);
 
@@ -35,8 +43,36 @@ namespace World_Finder_Challenge
 
             matrix = matrixArray.Select(row => new string(row)).ToList();
 
+            if (!useExistingFile)
+            {
+                SaveMatrixToFile(matrix);
+            }
+
             return (matrix, selectedWords);
         }
+
+        private static void SaveMatrixToFile(List<string> matrix)
+        {
+            string directoryPath = AppDomain.CurrentDomain.BaseDirectory;
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            string filePath = Path.Combine(directoryPath, $"matrix_{timestamp}.txt");
+
+            File.WriteAllLines(filePath, matrix);
+            Console.WriteLine($"Matriz guardada en: {filePath}");
+        }
+
+        private static List<string> LoadExistingMatrix()
+        {
+            string directoryPath = AppDomain.CurrentDomain.BaseDirectory;
+            var files = Directory.GetFiles(directoryPath, "matrix_2025*.txt");
+
+            if (files.Length == 0) return null;
+
+            string selectedFile = files.OrderByDescending(File.GetCreationTime).First();
+            Console.WriteLine($"Usando archivo existente: {selectedFile}");
+            return File.ReadAllLines(selectedFile).ToList();
+        }
+
         private static List<string> GenerateRandomMatrix(int rows, int cols)
         {
             var matrix = new List<string>();
@@ -62,14 +98,12 @@ namespace World_Finder_Challenge
 
             if (isHorizontal)
             {
-                // Insertar horizontalmente
                 int row = random.Next(size);
                 int col = random.Next(size - word.Length);
                 word.ToCharArray().CopyTo(matrixArray[row], col);
             }
             else
             {
-                // Insertar verticalmente
                 int col = random.Next(size);
                 int row = random.Next(size - word.Length);
                 for (int i = 0; i < word.Length; i++)
