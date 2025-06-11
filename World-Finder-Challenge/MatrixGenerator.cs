@@ -24,7 +24,7 @@ namespace World_Finder_Challenge
                 matrix = LoadExistingMatrix();
                 if (matrix != null) return (matrix, availableWords);
                 
-                Console.WriteLine("No se encontró un archivo válido, generando una nueva matriz.");
+                Console.WriteLine("The file has not been found, generating new matrix.");
             }
 
             matrix = GenerateRandomMatrix(rows, columns);
@@ -58,7 +58,7 @@ namespace World_Finder_Challenge
             string filePath = Path.Combine(directoryPath, $"matrix_{timestamp}.txt");
 
             File.WriteAllLines(filePath, matrix);
-            Console.WriteLine($"Matriz guardada en: {filePath}");
+            Console.WriteLine($"Matrix saved in: {filePath}");
         }
 
         private static List<string> LoadExistingMatrix()
@@ -69,7 +69,7 @@ namespace World_Finder_Challenge
             if (files.Length == 0) return null;
 
             string selectedFile = files.OrderByDescending(File.GetCreationTime).First();
-            Console.WriteLine($"Usando archivo existente: {selectedFile}");
+            Console.WriteLine($"using file: {selectedFile}");
             return File.ReadAllLines(selectedFile).ToList();
         }
 
